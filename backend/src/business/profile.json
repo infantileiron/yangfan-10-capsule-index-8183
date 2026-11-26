@@ -1,0 +1,71 @@
+{
+  "title": "转町游艺 · 胶囊玩具出货盘试转点检",
+  "subtitle": "比较同口径试转数据，按偏离程度交接需要人工复检的机台。",
+  "team": "转町游艺机台整备点，6 人轮值，每周点检两种口径的胶囊玩具机约 80 台。",
+  "workflow": "整备员在计量工位用标准空胶囊做 20 次出货循环，抄下出货间隔、定位偏差、转盘电流、壳体振动与重复推送数，再凭经验给机台排复检顺序。",
+  "pain_points": [
+    "两档胶囊口径对转盘阻力和间隔的影响不同，混用工位经验阈值会误判。",
+    "各项读数单看接近历史范围时，异常组合容易被交班员略过。",
+    "旧台账只留待复检机台号，下一班仍需逐页找测量偏移。"
+  ],
+  "upstream": "计量工位导出的 20 循环汇总表。近期历史没有故障标签，工位分出建模参照和留出读数。",
+  "downstream": "复检员按队列到机台核对装配与量测记录，再走现行出货验收。导出表只用于人工点检交班。",
+  "labels": {
+    "datasets": "二十循环测量单",
+    "runs": "试转偏离筛查",
+    "results": "机台复检队列",
+    "handoff": "计量工位交接",
+    "input": "按口径记录的试转读数",
+    "action": "计算优先复检队列"
+  },
+  "algorithm": "Isolation Forest · 同口径留出阈值 · 参照偏移",
+  "method": "按胶囊口径分别用无故障标签的近期参照拟合隔离森林，原始异常度为 -100 × score_samples。以同口径留出段估算尾部复检线，按异常度减复检线的差值排序。单项证据用参照中位数和四分位距计算，显示偏移最大的两个实测值、参照典型值与单位。此偏移描述测量差异，复检员仍需确认原因。同口径试转需至少 30 条参照与 12 条留出，缺少待检、重复编号、量测超范围或参照全无变化时应修正计量单。",
+  "seed_name": "ZM-1125-出货盘二十循环读数.csv",
+  "scenario": [
+    "08:20 导入 ZM-1125-出货盘二十循环读数.csv，核对 48 和 65 mm 两档参照与留出记录。",
+    "08:35 在本班试转组查 ZM-TR65-04，确认机台 ZM-B17 前后做满 20 个计量循环。",
+    "08:55 以工程师账号运行筛查，将同口径复检线设在留出异常度第 93 百分位。",
+    "09:00 在复检队列核对 ZM-TR65-04，电流中位值 1.86 A，优先检查出货盘传动。",
+    "09:05 对照 ZM-TR48-01，确认 48 mm 工位中的近中位读数安排例行抽检。",
+    "09:15 导出计量交班 CSV，按超线分差交接待复检机台和对应偏移明细。",
+    "10:20 复检员现场重做 ZM-B17 的 20 个循环并回填机台日检表。"
+  ],
+  "columns": [
+    {"key": "sample_id", "label": "试转编号", "type": "text"},
+    {"key": "cabinet", "label": "机台编号", "type": "text"},
+    {"key": "capsule_mm", "label": "胶囊口径（mm）", "type": "text", "choices": ["48", "65"]},
+    {"key": "cohort", "label": "数据用途", "type": "text", "choices": ["参照", "留出", "待检"]},
+    {"key": "cycle_p90", "label": "出货间隔 P90（秒）", "type": "number", "min": 0.1, "max": 60},
+    {"key": "index_error", "label": "停位平均偏差（mm）", "type": "number", "min": 0, "max": 30},
+    {"key": "current", "label": "转盘电流 P50（A）", "type": "number", "min": 0.05, "max": 10},
+    {"key": "vibration", "label": "壳体振动 RMS（mm/s）", "type": "number", "min": 0, "max": 60},
+    {"key": "retries", "label": "重复推送（次 / 20 循环）", "type": "number", "min": 0, "max": 20}
+  ],
+  "parameter": {
+    "key": "review_quantile",
+    "label": "复检线分位",
+    "default": 0.93,
+    "min": 0.8,
+    "max": 0.99,
+    "step": 0.01,
+    "description": "同口径留出异常度的经验分位。提高分位会缩短优先复检名单。"
+  },
+  "result_columns": [
+    {"key": "sample_id", "label": "试转编号"},
+    {"key": "cabinet", "label": "机台"},
+    {"key": "capsule_mm", "label": "口径"},
+    {"key": "score", "label": "异常度"},
+    {"key": "margin", "label": "超线分差"},
+    {"key": "evidence", "label": "实测与参照中位数"},
+    {"key": "decision", "label": "复检安排"}
+  ],
+  "chart": {"key": "margin", "label": "相对同口径复检线分差"},
+  "theme": {
+    "display": "Archivo Narrow",
+    "body": "IBM Plex Mono",
+    "hue": 350,
+    "chroma": 0.078,
+    "dark": false,
+    "layout": "docket"
+  }
+}

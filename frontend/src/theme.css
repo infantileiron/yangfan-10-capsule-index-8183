@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap");
+:root {
+  color-scheme: light;
+  --font-display: "Archivo Narrow";
+  --font-body: "IBM Plex Mono";
+  --radius: 0;
+  --gutter: clamp(1.05rem, 3vw, 3.5rem);
+  --canvas: oklch(96% 0.018 350);
+  --paper: oklch(98% 0.009 350);
+  --side: oklch(92% 0.029 350);
+  --ink: oklch(25% 0.037 350);
+  --muted: oklch(43% 0.043 350);
+  --line: oklch(81% 0.04 350);
+  --accent: oklch(44% 0.078 350);
+  --accent-ink: oklch(37% 0.078 350);
+  --on-accent: oklch(98% 0.011 350);
+  --table-alt: oklch(96% 0.012 350);
+  --error: oklch(42% 0.15 25);
+}
