@@ -12,6 +12,15 @@ class Stage(str, Enum):
     RUNNING = "running"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
+    HELD = "held"
+
+
+class CalibrationStage(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    READY = "ready"
+    FAILED = "failed"
+    SUPERSEDED = "superseded"
 
 
 class Decision(str, Enum):

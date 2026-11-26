@@ -68,5 +68,8 @@ def render_csv(rows, keys, protect=False):
     writer = csv.DictWriter(target, keys)
     writer.writeheader()
     for row in rows:
-        writer.writerow({key: spreadsheet_safe(row[key]) if protect else row[key] for key in keys})
+        writer.writerow({
+            key: spreadsheet_safe(row.get(key, "")) if protect else row.get(key, "")
+            for key in keys
+        })
     return target.getvalue()

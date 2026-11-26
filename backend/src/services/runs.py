@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from src.business.profile import PROFILE
 from src.config.settings import Session, redis
+from src.constants.workflow import Stage
 from src.models.run import Run
 from src.schemas.resources import run_view
 from src.services import datasets
@@ -22,9 +23,31 @@ def require(db, run_id):
     return run
 
 
-def list_runs():
+def list_runs(status: str | None = None):
     with Session() as db:
-        return [run_view(run) for run in db.scalars(select(Run).order_by(Run.created_at.desc(), Run.id.desc()))]
+        query = select(Run).order_by(Run.created_at.desc(), Run.id.desc())
+        if status:
+            query = query.where(Run.status == status)
+        return [run_view(run) for run in db.scalars(query)]
+
+
+def queue_overview():
+    with Session() as db:
+        runs = db.scalars(
+            select(Run)
+            .where(Run.status.in_([Stage.QUEUED.value, Stage.RUNNING.value, Stage.HELD.value]))
+            .order_by(Run.created_at, Run.id)
+        ).all()
+        held_items = []
+        for run in runs:
+            if run.status == Stage.HELD.value:
+                for item in run.held_queue or []:
+                    held_items.append({"run_id": run.id, "label": run.label, **item})
+        return {
+            "runs": [run_view(run) for run in runs],
+            "held": held_items,
+            "held_count": len(held_items),
+        }
 
 
 def submit(body, actor):

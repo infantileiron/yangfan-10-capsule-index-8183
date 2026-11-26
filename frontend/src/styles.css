@@ -108,7 +108,8 @@ tbody tr:hover { background: var(--side); }
   white-space: nowrap; font-size: .82rem; color: var(--ink);
 }
 .s-succeeded, .s-approve { color: var(--accent-ink); border-color: var(--accent); }
-.s-failed, .s-hold { color: var(--error); }
+.s-failed, .s-hold, .s-held { color: var(--error); }
+.s-pending, .s-running { border-color: var(--accent); }
 .empty, .review-record {
   padding: 1.35rem; margin: .75rem 0; background: var(--paper); border: 1px solid var(--line);
   border-inline-start: 4px solid var(--accent);
@@ -223,3 +224,9 @@ tbody tr:hover { background: var(--side); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.correction-record { margin: 1rem 0; padding: .9rem; border: 1px solid var(--line); background: var(--paper); }
+.correction-record h3 { margin: 0 0 .45rem; font-size: 1rem; }
+.version-line { display: grid; gap: .25rem; padding: .65rem 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.version-line strong { margin-bottom: .15rem; }
+.version-line a { color: inherit; }

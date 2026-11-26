@@ -35,10 +35,21 @@ def demo_rows() -> list[dict]:
     for prefix, diameter in zip(("A", "B"), FORMATS):
         for cohort, stage, count in (("参照", "REF", 44), ("留出", "CHK", 24)):
             for i in range(count):
+                if cohort == "留出":
+                    # Deliberately leave eight cross-shift readings on fit
+                    # cabinets; the line estimator must reject those and use
+                    # twelve independent holdout cabinets.
+                    cabinet = (
+                        f"ZM-{prefix}{i % 8 + 1:02d}"
+                        if i < 8
+                        else f"ZM-{prefix}{21 + (i - 8) % 12:02d}"
+                    )
+                else:
+                    cabinet = f"ZM-{prefix}{i % 12 + 1:02d}"
                 rows.append(
                     {
                         "sample_id": f"ZM-{stage}{diameter}-{i + 1:02d}",
-                        "cabinet": f"ZM-{prefix}{i % 12 + 1:02d}",
+                        "cabinet": cabinet,
                         "capsule_mm": diameter,
                         "cohort": cohort,
                         **_readings(diameter, rng),

@@ -5,8 +5,9 @@ from pathlib import Path
 from redis.exceptions import RedisError
 
 from src.config.settings import redis
+from src.services import calibrations
 from src.services.executor import claim, execute
-from src.services.runs import WAKE_KEY
+from src.worker_wake import WAKE_KEY
 
 HEARTBEAT = Path("/tmp/worker-heartbeat")
 
@@ -15,8 +16,12 @@ def work():
     logging.basicConfig(level=logging.INFO)
     while True:
         try:
-            job = claim()
             HEARTBEAT.touch()
+            calibration_job = calibrations.claim()
+            if calibration_job:
+                calibrations.execute(calibration_job)
+                continue
+            job = claim()
             if job:
                 execute(job)
             else:
